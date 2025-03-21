@@ -23,12 +23,63 @@ testprogramm
 
 */
 
+/*
+for ( 1 ) ;
+input x ;
+if ( x > 3 ) ;
+print @groesser ;
+next ;
+if ( x < 3 ) ;
+print @kleiner ;
+next ;
+if ( x : 3 ) ;
+print @erraten ;
+break ;
+next ;
+next ;
+terminate ;
+next ;
+
+bytecodeprep < thatsample.txt 2>numberriddle.basm
+assemblebytecode < numberriddle.basm
+osvm
+
+x = ( arrbuf = array [ 10 ] ) + 3 ;
+for not only direct assignment
+*/
+
+//#define input_filter
 #define bytecodeprep
 //#define assemblebytecode
 //#define osvm
 
-#ifdef bytecodeprep
+#ifdef input_filter
 
+int main(void)
+{
+  int c,c_old=' ';
+   int state=0;
+  while(1)
+  {
+   c=getchar();
+ 
+     if ( c_old!='@' )
+	 {
+	 	if ( isalpha(c_old)||(c_old>=0x30&&c_old<=0x39) )
+	  {
+	   if((c>=0x30&&c<=0x39)||isalpha(c))printf("%c",c_old);
+	   else printf("%c ",c_old);
+      }
+      else printf(" %c ",c_old);
+	 }
+     if ( c_old=='@')printf(" %c",c_old);
+	 c_old=c;
+   
+
+  
+  }
+}
+#elif defined bytecodeprep
 /*
   trying to add ann algebra solve operator into the syntax of the programming language and
     making algebra obsolete
@@ -170,8 +221,14 @@ int main(void)
      txtcount++;
   else
    if(token[position].text[0]=='-'
-      && strlen(token[position].text )== 1 ) token[position].type='-',
-      txtcount++;
+      && strlen(token[position].text )== 1 )
+	  {
+	   if ( position>0){if(token[position-1].type=='v'||token[position-1].type=='n')
+	   token[position].type='-';else token[position].type=255;
+	  }else token[position].type=255;
+       txtcount++;
+      
+	  }
   else
    if(token[position].text[0]=='*'
       && strlen(token[position].text )== 1 ) token[position].type='*',
@@ -207,6 +264,14 @@ int main(void)
   else
     if(token[position].text[0]==':'
         && strlen(token[position].text )== 1 ) token[position].type=':',
+        txtcount++;
+  else
+    if(token[position].text[0]=='>'
+        && strlen(token[position].text )== 1 ) token[position].type='>',
+        txtcount++;
+  else
+    if(token[position].text[0]=='<'
+        && strlen(token[position].text )== 1 ) token[position].type='<',
         txtcount++;
   else
     if(token[position].text[0]=='@' ) token[position].type='@',
@@ -294,10 +359,10 @@ int main(void)
 	 if ( token[position].text[txtcount] != '\0' ) {printf("ungueltiger Variablenname, kein Schluesselwort");return 1;}
     }
   else
-    if ( isnum( token[position].text[0] )||token[position].text[0]=='-' )
+    if ( isnum( token[position].text[0] )/*||token[position].text[0]=='-'*/ )
   {
     txtcount=0;
-    while( isnum( token[position].text[txtcount] )||(token[position].text[txtcount]=='-'&&txtcount==0) ) txtcount++;
+    while( isnum( token[position].text[txtcount] )/*||(token[position].text[txtcount]=='-'&&txtcount==0)*/ ) txtcount++;
     token[position].type='n'; /* numerische Konstante */
      token[position].sumvar=atoi(token[position].text),token[position].mulvar=0;
       token[position].onx=0;
@@ -358,6 +423,7 @@ int main(void)
      position--;
      
    }
+ 
  
   position=right_limit-1;
   while( position >=left_limit )
@@ -489,6 +555,22 @@ int main(void)
 
    }
    
+   
+  position=right_limit-1;
+  
+   while( position >=left_limit )
+   {
+    if ( token[position].type==255 )
+      if ( token[position+1].type== 'v'||token[position+1].type=='n'||token[position+1].type=='r')
+      {
+       reduction_type=255, right_limit=position+1, left_limit=position;
+       break;
+      }
+     position--;
+     
+   }
+ 
+   
     position=left_limit;
   while( token[position].type!= ']'&& position < num_tokens )
   {
@@ -588,11 +670,40 @@ int main(void)
    position=right_limit-2;
    while( position >=left_limit )
    {
-    if ( token[position].type=='v'|| token[position+2].type=='n' || token[position+2].type=='r')
+    if ( token[position].type=='v'|| token[position].type=='n' || token[position].type=='r')
      if( token[position+1].type==':' )
       if ( token[position+2].type== 'v' || token[position+2].type=='n' || token[position+2].type=='r')
       {
        reduction_type=':', right_limit=position+2, left_limit=position;
+       break;
+      }
+     position--;
+
+   }
+  
+   position=right_limit-2;
+   while( position >=left_limit )
+   {
+    if ( token[position].type=='v'|| token[position].type=='n' || token[position].type=='r')
+     if( token[position+1].type=='>' )
+      if ( token[position+2].type== 'v' || token[position+2].type=='n' || token[position+2].type=='r')
+      {
+       reduction_type='>', right_limit=position+2, left_limit=position;
+       break;
+      }
+     position--;
+
+   }
+   
+   
+   position=right_limit-2;
+   while( position >=left_limit )
+   {
+    if ( token[position].type=='v'|| token[position].type=='n' || token[position].type=='r')
+     if( token[position+1].type=='<' )
+      if ( token[position+2].type== 'v' || token[position+2].type=='n' || token[position+2].type=='r')
+      {
+       reduction_type='<', right_limit=position+2, left_limit=position;
        break;
       }
      position--;
@@ -983,6 +1094,75 @@ int main(void)
     strcpy( token[left_limit].text, rvalnum );
 
    }
+    else
+   if ( reduction_type== '>'  ) /* Vergleich */
+   {
+     variable_countup( rvalnum,1 );
+
+    
+    if( token[left_limit+2].type!= 'n'&&token[left_limit].type!= 'n' )
+       sprintf(flushout,"movaxvar %s\n"
+              "cmpaxvar %s\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+    else
+	if( token[left_limit].type== 'n'&&token[left_limit+2].type!= 'n' )
+       sprintf(flushout,"movaxvar %s\n"
+              "cmpaxval %s\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+    else
+	if( token[left_limit].type!= 'n'&&token[left_limit+2].type== 'n' )
+       sprintf(flushout,"movaxval %s\n"
+              "cmpaxvar %s\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+    else
+	if( token[left_limit].type== 'n'&&token[left_limit+2].type== 'n' )
+       sprintf(flushout,"movaxval %s\n"
+              "cmpaxval %s\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+
+       sprintf(flushout,
+              "movaxval 0\n"
+			  "repgmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+
+     sprintf(flushout,"movvarax %s\n", rvalnum ),strcat(flushstring,flushout);
+
+    remove_tokens(left_limit,2 );
+
+    token[left_limit].type='r';
+    strcpy( token[left_limit].text, rvalnum );
+
+   }
+   else
+   if ( reduction_type== '<'  ) /* Vergleich */
+   {
+     variable_countup( rvalnum,1 );
+
+    
+    if( token[left_limit+2].type!= 'n'&&token[left_limit].type!= 'n' )
+       sprintf(flushout,"movaxvar %s\n"
+              "cmpaxvar %s\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+    else
+	if( token[left_limit].type== 'n'&&token[left_limit+2].type!= 'n' )
+       sprintf(flushout,"movaxvar %s\n"
+              "cmpaxval %s\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+    else
+	if( token[left_limit].type!= 'n'&&token[left_limit+2].type== 'n' )
+       sprintf(flushout,"movaxval %s\n"
+              "cmpaxvar %s\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+    else
+	if( token[left_limit].type== 'n'&&token[left_limit+2].type== 'n' )
+       sprintf(flushout,"movaxval %s\n"
+              "cmpaxval %s\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+
+       sprintf(flushout,
+              "movaxval 0\n"
+			  "replmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+
+     sprintf(flushout,"movvarax %s\n", rvalnum ),strcat(flushstring,flushout);
+
+    remove_tokens(left_limit,2 );
+
+    token[left_limit].type='r';
+    strcpy( token[left_limit].text, rvalnum );
+
+   }
+  
    else
    if ( reduction_type== 'p'  ) /* Ausgabe */
    {
@@ -1036,6 +1216,23 @@ int main(void)
    	 token[left_limit].type='c';
     
    }
+    else
+   if ( reduction_type==255)
+   {
+     variable_countup( rvalnum,1 );
+    if ( token[left_limit+1].type=='n')
+   	sprintf(flushout,"movaxval %s\n"
+	      "mulaxval -1\n" 
+		  "movvarax %s\n",token[left_limit+1].text,rvalnum),strcat(flushstring,flushout);
+	  else
+ 	sprintf(flushout,"movaxvar %s\n"
+	      "mulaxval -1\n" 
+		  "movvarax %s\n",token[left_limit+1].text,rvalnum),strcat(flushstring,flushout);
+	    
+    remove_tokens(left_limit,1 );
+   	 strcpy(token[left_limit].text,rvalnum);
+	 token[left_limit].type='r';
+  }
    else if ( reduction_type=='f')
    {
    	labelstack[label_stack_count].type='f';
@@ -1071,7 +1268,7 @@ int main(void)
 	   label_stack_count--;
    	else
    	if ( labelstack[label_stack_count-1].type=='f')sprintf(flushout,"\njmp %s\n"
-	                                                       "\n%s:\n",labelstack[label_stack_count-2].labelnum,
+	                                                       "\n:%s\n",labelstack[label_stack_count-2].labelnum,
 														   labelstack[label_stack_count-1].labelnum),strcat(flushstring,flushout),
 														   label_stack_count-=2 ;
    	else return;
@@ -1288,7 +1485,6 @@ jmp label1
 label2:
 */
 #elif defined assemblebytecode
-
 #include <stdio.h>
  
    unsigned char varreplace[128][30];
@@ -1624,6 +1820,16 @@ else
    machinecode[adr]=26;adr++;
  }
    else
+  if ( strcmp(input,"repgmovaxval")==0)
+  {
+   machinecode[adr]=39;adr++;
+ }
+   else
+  if ( strcmp(input,"replmovaxval")==0)
+  {
+   machinecode[adr]=40;adr++;
+ }
+   else
   if ( strcmp(input,"cmpaxval")==0)
   {
    machinecode[adr]=27;adr++;
@@ -1655,6 +1861,7 @@ else
  FILE *output;
  output=fopen("firstprog.btc","wb");
  fprintf(output,"%d\n",varcount+arrayadd_max);
+ fputc(1,output);
  while ( n < adr) fputc(machinecode[n]%255,output),fputc(machinecode[n]>>8,output),n++;
  //printf("%c%c",machinecode[n]&255,machinecode[n]>>8)
 //while ( n < adr) printf("%d ",machinecode[n]),n++;
@@ -1795,7 +2002,7 @@ void message_queue(void)
  }
  if ( syscall_answer.task>=0 )
  {
-    //printf("os hat zurückgeschickt %d",syscall_answer.msg);
+    //printf("os hat zurÃ¼ckgeschickt %d",syscall_answer.msg);
    queued_message[msgcnt].msg=syscall_answer.msg;
    queued_message[msgcnt].task=syscall_answer.task;
    queued_message[msgcnt].os_reply=1;
@@ -1852,6 +2059,7 @@ void syscall(void)
  {
  //load
   int loadpos=0;
+  printf("Lade...");
   while ( n<10)
   {
    if(tasktable[n].len!=0)loadpos+=tasktable[n].len+tasktable[n].varlen+255+2;
@@ -1864,6 +2072,7 @@ void syscall(void)
     FILE *progimage;
     progimage=fopen(syscall_answer.param,"rb");
      fscanf(progimage,"%d\n",&var_len);
+     fgetc(progimage);// the so called linker has to insert one character that fscanf does not overread while reading variable lengths also
 	while(!feof(progimage))RAM[loadpos+program_len+255+2]=fgetc(progimage)&255|(fgetc(progimage)<<8),RAM[loadpos+program_len+255+2]>32767? (RAM[loadpos+program_len+255+2]=(65535-RAM[loadpos+program_len+255+2])*-1) : 0 ,program_len++;
   	 RAM[loadpos+program_len+255+2-1]=38;
 	   fclose(progimage);
@@ -1897,27 +2106,28 @@ void syscall(void)
       tasktable[n].regsreset.ip_stack[3]-=tasktable[syscall_answer.task].len+tasktable[syscall_answer.task].varlen+255+2;	
       tasktable[n].regsreset.ip_stack[4]-=tasktable[syscall_answer.task].len+tasktable[syscall_answer.task].varlen+255+2;	
       tasktable[n].regsreset.di_off-=tasktable[syscall_answer.task].len+tasktable[syscall_answer.task].varlen+255+2;	
-    tasktable[n].len=0;
+    //tasktable[n].len=0;
    }
    n++;
   }
  //remove
   tasktable[syscall_answer.task].len=0;
   syscall_answer.task=-1;
+  printf("beende...");
    os_ready=0;
  }
   else
  if ( syscall_answer.msg==2&&os_ready==1)
  { 
  //print
-  printf("%s",syscall_answer.param);
+  printf("[Task %d]%s",syscall_answer.task,syscall_answer.param);
    syscall_answer.task=-1;
   os_ready=0;
  }
   else
  if ( syscall_answer.msg==3&&os_ready==1)
  { 
-   printf("Eingabe:");
+   printf("[Task %d]Eingabe:",syscall_answer.task);
   scanf("%d",&syscall_answer.valparam);
   syscall_answer.param[49]='\0';
   syscall_answer.msg=4;
@@ -1934,7 +2144,7 @@ void vm_execute(void)
      static signed int readvaladr=-1;
     while (vmsteps>0)
     {
-      printf("Bin an Adresse %d di ist %d offset Befehl %d %d %d\n",vmregs.ip,vmregs.di_off,RAM[vmregs.ip],tasktable[active_task].address,vmregs.if_flag);
+      //printf("Bin an Adresse %d di ist %d offset Befehl %d %d %d\n",vmregs.ip,vmregs.di_off,RAM[vmregs.ip],tasktable[active_task].address,vmregs.if_flag);
 	   //int n4;n4=0;
 	    //while (n4<100){printf("%d ",RAM[vmregs.ip+n4]),n4++; if ( vmregs.ip+n4==389)printf("dada");}
 	if ( RAM[tasktable[active_task].address+102]==1)
@@ -1951,26 +2161,26 @@ void vm_execute(void)
 	}
 	if ( readvaladr!=-1) return;
 	if ( RAM[tasktable[active_task].address]==1)return;
-	getchar();
+	//getchar();
  if ( RAM[vmregs.ip]==0)
  {
   vmregs.ax=RAM[vmregs.di_off+RAM[vmregs.ip+1]];
   vmregs.ip+=2;
  }
  else
- if ( RAM[vmregs.ip+tasktable[active_task].address]==1)
+ if ( RAM[vmregs.ip]==1)
  {
   RAM[vmregs.di_off+RAM[vmregs.ip+1]] =vmregs.ax;
   vmregs.ip+=2;
  }
  else
- if ( RAM[vmregs.ip+tasktable[active_task].address]==29)
+ if ( RAM[vmregs.ip]==29)
  {
   RAM[vmregs.di_off+RAM[vmregs.ip+1]] =RAM[vmregs.di_off+RAM[vmregs.ip+2]];
   vmregs.ip+=3;
  }
  else
- if ( RAM[vmregs.ip+tasktable[active_task].address]==32)
+ if ( RAM[vmregs.ip]==32)
  {
   RAM[vmregs.di_off+RAM[vmregs.ip+1]] =RAM[vmregs.ip+2];
   vmregs.ip+=3;
@@ -1985,6 +2195,24 @@ void vm_execute(void)
  if ( RAM[vmregs.ip]==26)
  {
    if ( vmregs.if_flag==1 )
+   {
+    vmregs.ax=1;
+   }
+   vmregs.ip++;
+  }
+  else
+ if ( RAM[vmregs.ip]==39)
+ {
+   if ( vmregs.greater_flag==1 )
+   {
+    vmregs.ax=1;
+   }
+   vmregs.ip++;
+  }
+  else
+ if ( RAM[vmregs.ip]==40)
+ {
+   if ( vmregs.lesser_flag==1 )
    {
     vmregs.ax=1;
    }
@@ -2017,7 +2245,7 @@ void vm_execute(void)
  else
  if ( RAM[vmregs.ip]==7)
  {
-  vmregs.ax*=RAM[vmregs.di_off+RAM[vmregs.ip+1]];
+  vmregs.ax*=RAM[vmregs.ip+1];
   vmregs.ip+=2;
  }
  else
@@ -2036,8 +2264,8 @@ void vm_execute(void)
  else
  if ( RAM[vmregs.ip]==10)
  {
-  if(RAM[tasktable[active_task].address+1]==0){printf("Division durch Wert 0");return;}
-   vmregs.ax/=RAM[vmregs.di_off+RAM[vmregs.ip+1]];
+  if(RAM[vmregs.ip+1]==0){printf("Division durch Wert 0");return;}
+   vmregs.ax/=RAM[vmregs.ip+1];
   vmregs.ip+=2;
  } 
  
@@ -2087,8 +2315,8 @@ void vm_execute(void)
  else
  if ( RAM[vmregs.ip]==21)
  {
-  if(vmregs.ax==0){printf("Division durch Wert 0");return;}
-   RAM[vmregs.di_off+RAM[vmregs.ip+1]]/=vmregs.ax;
+  if(RAM[vmregs.ip+1]==0){printf("Division durch Wert 0");return;}
+   vmregs.ax/=RAM[vmregs.ip+1];
   vmregs.ip+=2;
  }
  
@@ -2217,12 +2445,25 @@ void vm_execute(void)
  
  if ( RAM[vmregs.ip]==33)
  {
+ 	
+ 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]] >=tasktable[active_task].address+tasktable[active_task].len+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]]<tasktable[active_task].address+tasktable[active_task].len||
+		 vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable[active_task].len+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+tasktable[active_task].len)
+	 {
+	  printf("Speicher-Schutzverletzung.");return;
+    }
   RAM[vmregs.di_off+RAM[vmregs.ip+1]]=RAM[vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]]];
   vmregs.ip+=3;
  }
  else
  if ( RAM[vmregs.ip]==34)
  {
+ 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable[active_task].len+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+tasktable[active_task].len)
+	 {
+	  printf("Speicher-Schutzverletzung.");return;
+    }
  RAM[vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]]=vmregs.ax;
   vmregs.ip+=2;
  }
@@ -2269,12 +2510,12 @@ else
 
  vmsteps--;
 }
- //bei Adressoperator weist man ohne eckige Klammern zu R-Wert, bei Inhaltsoperator kopiert man Speicherzelle in Register und indiziert es anschließend?!?
+ //bei Adressoperator weist man ohne eckige Klammern zu R-Wert, bei Inhaltsoperator kopiert man Speicherzelle in Register und indiziert es anschlieÃŸend?!?
  
 /* 
  if ( strcmp(input,"movaxvar" 0)==0)
   if ( strcmp(input,"movarax" 1)==0)
-  if ( strcmp(input,"movvaxval" 2)==0)
+  if ( strcmp(input,"movaxval" 2)==0)
   if ( strcmp(input,"addaxval" 3)==0)
   if ( strcmp(input,"addaxvar" 4)==0)
   if ( strcmp(input,"subaxvar") 5)
@@ -2310,6 +2551,8 @@ if ( strcmp(input,"mulaxvar" 8)==0)
     call  36
     ret  37
     exit 38
+    repgmovaxval 39
+    replmovaxval 40
 */
 
 }
@@ -2325,20 +2568,12 @@ int main(void)
  os_ready=1;
  strcpy(syscall_answer.param,"firstprog.btc");
  syscall();
-   getchar(); 
- schedule();
-  os_ready=0;
+ syscall_answer.msg=0;
+ os_ready=1;
+ strcpy(syscall_answer.param,"firstprog.btc");
  syscall();
+ 
    getchar(); 
-  getchar();
-  schedule();
-   getchar();
-  vm_execute();
-  getchar();
-  message_queue();
-  getchar();
-  syscall();
-  getchar();
  while(1)
  { 
   schedule();
