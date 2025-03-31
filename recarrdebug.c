@@ -1,4 +1,45 @@
 /*
+ two example listings
+ square root
+ x = 0 ;
+input y ;
+for ( x * x < y ) ;
+x = x + 1 ;
+next ;
+print x ;
+even = 0 ;
+if ( x * x : y ) ;
+print @gibtexaktewurzel ;
+even = 1 ;
+next ;
+if ( even : 0 ) ;
+print @gehtnichtauf ;
+next ;
+terminate ;
+next ;
+
+prime numbers
+for ( x < 100 ) ;
+x = x + 1 ;
+y = 2 ;
+printnot = 0 ;
+for ( y < x - 1 ) ;
+z = x / y ;
+if (  y * z  : x ) ;
+printnot = 1 ;
+next ;
+y = y + 1 ;
+next ;
+if ( printnot : 0 ) ; 
+print x ;
+next ;
+next ;
+terminate ;
+next ;
+*/
+
+
+/*
 dim x 7 ;
 x [ 0 ] = 0 ;
 off = 1 ;
@@ -49,8 +90,8 @@ for not only direct assignment
 */
 
 //#define input_filter
-#define bytecodeprep
-//#define assemblebytecode
+//#define bytecodeprep
+#define assemblebytecode
 //#define osvm
 
 #ifdef input_filter
@@ -223,7 +264,7 @@ int main(void)
    if(token[position].text[0]=='-'
       && strlen(token[position].text )== 1 )
 	  {
-	   if ( position>0){if(token[position-1].type=='v'||token[position-1].type=='n')
+	   if ( position>0){if(token[position-1].type=='v'||token[position-1].type=='n'||token[position-1].type==')')
 	   token[position].type='-';else token[position].type=255;
 	  }else token[position].type=255;
        txtcount++;
@@ -1118,7 +1159,7 @@ int main(void)
 
        sprintf(flushout,
               "movaxval 0\n"
-			  "repgmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+			  "replmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
 
      sprintf(flushout,"movvarax %s\n", rvalnum ),strcat(flushstring,flushout);
 
@@ -1152,7 +1193,7 @@ int main(void)
 
        sprintf(flushout,
               "movaxval 0\n"
-			  "replmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+			  "repgmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
 
      sprintf(flushout,"movvarax %s\n", rvalnum ),strcat(flushstring,flushout);
 
@@ -1552,7 +1593,7 @@ int main(void)
   if ( strcmp(input,"movaxval")==0)
   {
    machinecode[adr]=2;adr++;
-    scanf("%d",&input_val);
+    scanf("%d",&input_val);if ( input_val<0)input_val--;//there is an error in signed conversion, however, misses only highest or lowest value?
    machinecode[adr]=input_val; adr++;
  
   }
@@ -1567,7 +1608,7 @@ int main(void)
   if ( strcmp(input,"addaxval")==0)
   {
    machinecode[adr]=3;adr++;
-    scanf("%d",&input_val);
+    scanf("%d",&input_val);if ( input_val<0)input_val--;
    machinecode[adr]=input_val; adr++;
   
   }
@@ -1587,7 +1628,7 @@ int main(void)
    machinecode[adr]=32;adr++;
     scanf("%s",input);
    machinecode[adr]=varfornum(input); adr++;
-    scanf("%d",&input_val);
+    scanf("%d",&input_val);if ( input_val<0)input_val--;
    machinecode[adr]=input_val; adr++;
   
   }
@@ -1635,7 +1676,7 @@ int main(void)
  if ( strcmp(input,"subaxval")==0)
   {
    machinecode[adr]=6;adr++;
-    scanf("%d",&input_val);
+    scanf("%d",&input_val);if ( input_val<0)input_val--;
    machinecode[adr]=input_val; adr++;
   
   }
@@ -1643,7 +1684,7 @@ int main(void)
  if ( strcmp(input,"mulaxval")==0)
   {
    machinecode[adr]=7;adr++;
-    scanf("%d",&input_val);
+    scanf("%d",&input_val);if ( input_val<0)input_val--;
    machinecode[adr]=input_val; adr++;
  
   }
@@ -1667,7 +1708,7 @@ int main(void)
  if ( strcmp(input,"divaxval")==0)
   {
    machinecode[adr]=10;adr++;
-    scanf("%d",&input_val);
+    scanf("%d",&input_val);if ( input_val<0)input_val--;
    machinecode[adr]=input_val; adr++;
  
   }
@@ -1675,10 +1716,10 @@ int main(void)
  if ( strcmp(input,"cmpvalval")==0)
   {
    machinecode[adr]=11;adr++;
-    scanf("%d",&input_val);
+    scanf("%d",&input_val);if ( input_val<0)input_val--;
    machinecode[adr]=input_val; adr++;
  
-  scanf("%d",&input_val);
+  scanf("%d",&input_val);if ( input_val<0)input_val--;
    machinecode[adr]=input_val; adr++;
  
   }
@@ -1688,7 +1729,7 @@ int main(void)
    machinecode[adr]=12;adr++;
    scanf("%s",input);
     machinecode[adr]=varfornum(input);adr++;
-   scanf("%d",&input_val);
+   scanf("%d",&input_val);if ( input_val<0)input_val--;
     machinecode[adr]=input_val;adr++;
      
 }
@@ -1714,7 +1755,7 @@ int main(void)
   enteroffset(varcount-1,arrsize);
   printf("%d",varcount);
    varfornum(input);
-  	   if ( new_var<varcount-1){printf("Variablenname fuer Array existiert bereits."); return; }
+  	   if ( new_var>=varcount){printf("Variablenname fuer Array existiert bereits."); return; }
   }
 
   else
@@ -1833,7 +1874,7 @@ else
   if ( strcmp(input,"cmpaxval")==0)
   {
    machinecode[adr]=27;adr++;
-    scanf("%d",&input_val);
+    scanf("%d",&input_val);if ( input_val<0)input_val--;
    machinecode[adr]=input_val; adr++;
    }
    else
@@ -2446,10 +2487,10 @@ void vm_execute(void)
  if ( RAM[vmregs.ip]==33)
  {
  	
- 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]] >=tasktable[active_task].address+tasktable[active_task].len+tasktable[active_task].varlen||
-	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]]<tasktable[active_task].address+tasktable[active_task].len||
-		 vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable[active_task].len+tasktable[active_task].varlen||
-	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+tasktable[active_task].len)
+ 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]] >=tasktable[active_task].address+tasktable[active_task].len+255+2+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]]<tasktable[active_task].address+tasktable[active_task].len+255+2||
+		 vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable[active_task].len+255+2+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+tasktable[active_task].len+255+2)
 	 {
 	  printf("Speicher-Schutzverletzung.");return;
     }
@@ -2459,10 +2500,10 @@ void vm_execute(void)
  else
  if ( RAM[vmregs.ip]==34)
  {
- 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable[active_task].len+tasktable[active_task].varlen||
-	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+tasktable[active_task].len)
+ 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable[active_task].len+255+2+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+255+2+tasktable[active_task].len)
 	 {
-	  printf("Speicher-Schutzverletzung.");return;
+	  printf("Speicher-Schutzverletzung..");return;
     }
  RAM[vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]]=vmregs.ax;
   vmregs.ip+=2;
@@ -2564,10 +2605,6 @@ int main(void)
  int n=0;
  while ( n < 10 )tasktable[n].len=0,n++;
  
- syscall_answer.msg=0;
- os_ready=1;
- strcpy(syscall_answer.param,"firstprog.btc");
- syscall();
  syscall_answer.msg=0;
  os_ready=1;
  strcpy(syscall_answer.param,"firstprog.btc");
