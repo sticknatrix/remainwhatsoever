@@ -91,8 +91,8 @@ for not only direct assignment
 
 //#define input_filter
 //#define bytecodeprep
-#define assemblebytecode
-//#define osvm
+//#define assemblebytecode
+#define osvm
 
 #ifdef input_filter
 
@@ -397,7 +397,9 @@ int main(void)
      token[position].onx=0;
      token[position].sumvar=0,token[position].mulvar=1;
      if ( token[position].text[0]=='x') token[position].onx=1;
-	 if ( token[position].text[txtcount] != '\0' ) {printf("ungueltiger Variablenname, kein Schluesselwort");return 1;}
+	 if ( token[position].text[txtcount] != '\0' ) {printf("ungueltiger Variablenname, kein Schluesselwort");return 
+
+1;}
     }
   else
     if ( isnum( token[position].text[0] )/*||token[position].text[0]=='-'*/ )
@@ -679,7 +681,9 @@ int main(void)
    {
     if ( token[position].type=='v' ||token[position].type=='a')
      if( token[position+1].type=='=' )
-      if ( token[position+2].type== 'v' || token[position+2].type=='n' || token[position+2].type=='r'||token[position+2].type=='a')
+      if ( token[position+2].type== 'v' || token[position+2].type=='n' || token[position+2].type=='r'||token[position
+
++2].type=='a')
       {
        reduction_type='=', right_limit=position+2, left_limit=position;
        break;
@@ -696,7 +700,9 @@ int main(void)
    {
     if ( token[position].type=='a' )
      if( token[position+1].type=='=' )
-      if ( token[position+2].type== 'v' || token[position+2].type=='n' || token[position+2].type=='r'||token[position+2].type=='a')
+      if ( token[position+2].type== 'v' || token[position+2].type=='n' || token[position+2].type=='r'||token[position
+
++2].type=='a')
       {
        reduction_type='&', right_limit=position+2, left_limit=position;
         reduce_index=0;
@@ -950,12 +956,18 @@ int main(void)
 
 
       sumbuf=(token[left_limit].sumvar)*(token[left_limit+2].sumvar),
-      mulbuf=((token[left_limit].sumvar+token[left_limit].mulvar))*((token[left_limit+2].sumvar+token[left_limit+2].mulvar));
+      mulbuf=((token[left_limit].sumvar+token[left_limit].mulvar))*((token[left_limit+2].sumvar+token[left_limit
+
++2].mulvar));
       
       if ( token[left_limit+2].onx==1&&token[left_limit+2].sumvar!=0)mulbuf-=(token[left_limit+2].sumvar)*
-	                                                                        ((token[left_limit].sumvar+token[left_limit].mulvar));
+	                                                                        ((token[left_limit].sumvar+token
+
+[left_limit].mulvar));
       if ( token[left_limit].onx==1&&token[left_limit].sumvar!=0)mulbuf-=(token[left_limit].sumvar)*
-	                                                                        ((token[left_limit+2].sumvar+token[left_limit+2].mulvar));
+	                                                                        ((token[left_limit+2].sumvar+token
+
+[left_limit+2].mulvar));
 	  
 	  if ( token[left_limit].onx==0&&token[right_limit].onx==0)onxbuf=0; else onxbuf=1;
    
@@ -991,8 +1003,12 @@ int main(void)
     
         if ( token[left_limit+2].sumvar!=0&&token[left_limit+2].mulvar!=0)
         {
-      sumbuf=(token[left_limit].sumvar/token[left_limit+2].sumvar)*token[left_limit].mulvar*token[left_limit].onx/token[left_limit+2].mulvar*token[left_limit+2].onx,
-      mulbuf=(token[left_limit].sumvar/token[left_limit+2].sumvar)*token[left_limit].mulvar*token[left_limit].onx/token[left_limit+2].mulvar*token[left_limit+2].onx;
+      sumbuf=(token[left_limit].sumvar/token[left_limit+2].sumvar)*token[left_limit].mulvar*token[left_limit].onx/token
+
+[left_limit+2].mulvar*token[left_limit+2].onx,
+      mulbuf=(token[left_limit].sumvar/token[left_limit+2].sumvar)*token[left_limit].mulvar*token[left_limit].onx/token
+
+[left_limit+2].mulvar*token[left_limit+2].onx;
        } else sumbuf=-1, mulbuf=-1;
    
    
@@ -1125,7 +1141,9 @@ int main(void)
 
        sprintf(flushout,
               "movaxval 0\n"
-			  "repzmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+			  "repzmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat
+
+(flushstring,flushout);
 
      sprintf(flushout,"movvarax %s\n", rvalnum ),strcat(flushstring,flushout);
 
@@ -1159,7 +1177,9 @@ int main(void)
 
        sprintf(flushout,
               "movaxval 0\n"
-			  "replmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+			  "replmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat
+
+(flushstring,flushout);
 
      sprintf(flushout,"movvarax %s\n", rvalnum ),strcat(flushstring,flushout);
 
@@ -1193,7 +1213,9 @@ int main(void)
 
        sprintf(flushout,
               "movaxval 0\n"
-			  "repgmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat(flushstring,flushout);
+			  "repgmovaxval 1\n",token[left_limit+2].text, token[left_limit].text ),strcat
+
+(flushstring,flushout);
 
      sprintf(flushout,"movvarax %s\n", rvalnum ),strcat(flushstring,flushout);
 
@@ -1226,7 +1248,9 @@ int main(void)
    {
      variable_countup( rvalnum,1 );
 
-     if ( token[left_limit].type=='r' || token[left_limit].type=='n' ){  printf("Zuweisung zu R-Wert oder Konstante!\n"); return 1; }
+     if ( token[left_limit].type=='r' || token[left_limit].type=='n' ){  printf("Zuweisung zu R-Wert oder Konstante!\n"); 
+
+return 1; }
 
     if( token[left_limit+1].type== 'v' )
        sprintf(flushout,"INPUTvar %s\n",token[left_limit+1].text),strcat(flushstring,flushout);
@@ -1287,12 +1311,16 @@ int main(void)
 	        
 			sprintf(flushout,
 			"cmpvalval %s 1\n"
-			"jz %s\n",token[left_limit+1].text,labelstack[label_stack_count-1].labelnum),strcat(flushstring,flushout);
+			"jz %s\n",token[left_limit+1].text,labelstack[label_stack_count-1].labelnum),strcat
+
+(flushstring,flushout);
    else
    	sprintf(flushprefix,"\n:%s\n",labelstack[label_stack_count-2].labelnum),
 	  sprintf(flushout,
 	         "cmpvarval %s 1\n"
-			"jz %s\n",token[left_limit+1].text,labelstack[label_stack_count-1].labelnum),strcat(flushstring,flushout);
+			"jz %s\n",token[left_limit+1].text,labelstack[label_stack_count-1].labelnum),strcat
+
+(flushstring,flushout);
 	   
 	      remove_tokens(left_limit,1 );
   	 token[left_limit].type='c';
@@ -1305,13 +1333,19 @@ int main(void)
    if(label_stack_count<2)
 	   if(labelstack[label_stack_count-1].type=='f') return;
    	
-   	if ( labelstack[label_stack_count-1].type=='i')sprintf(flushout,":%s\n",labelstack[label_stack_count-1].labelnum),strcat(flushstring,flushout),
+   	if ( labelstack[label_stack_count-1].type=='i')sprintf(flushout,":%s\n",labelstack[label_stack_count-
+
+1].labelnum),strcat(flushstring,flushout),
 	   label_stack_count--;
    	else
    	if ( labelstack[label_stack_count-1].type=='f')sprintf(flushout,"\njmp %s\n"
 	                                                       "\n:%s\n",labelstack[label_stack_count-2].labelnum,
-														   labelstack[label_stack_count-1].labelnum),strcat(flushstring,flushout),
-														   label_stack_count-=2 ;
+														   
+
+labelstack[label_stack_count-1].labelnum),strcat(flushstring,flushout),
+														   
+
+label_stack_count-=2 ;
    	else return;
    	
    	 token[left_limit].type='c';
@@ -1593,7 +1627,9 @@ int main(void)
   if ( strcmp(input,"movaxval")==0)
   {
    machinecode[adr]=2;adr++;
-    scanf("%d",&input_val);if ( input_val<0)input_val--;//there is an error in signed conversion, however, misses only highest or lowest value?
+    scanf("%d",&input_val);if ( input_val<0)input_val--;//there is an error in signed conversion, however, misses only 
+
+highest or lowest value?
    machinecode[adr]=input_val; adr++;
  
   }
@@ -2075,7 +2111,9 @@ void message_queue(void)
   {
    if ( os_ready==0)
    {
-   	//printf("kopiere ans system %d %c%c",tasktable[n].address,RAM[(tasktable[n].address+2)],RAM[(tasktable[n].address+3)]);
+   	//printf("kopiere ans system %d %c%c",tasktable[n].address,RAM[(tasktable[n].address+2)],RAM[(tasktable
+
+[n].address+3)]);
    syscall_answer.msg=queued_message[n].msg;
    syscall_answer.task=queued_message[n].task;
    strncpy(syscall_answer.param,queued_message[n].param,49);
@@ -2113,8 +2151,12 @@ void syscall(void)
     FILE *progimage;
     progimage=fopen(syscall_answer.param,"rb");
      fscanf(progimage,"%d\n",&var_len);
-     fgetc(progimage);// the so called linker has to insert one character that fscanf does not overread while reading variable lengths also
-	while(!feof(progimage))RAM[loadpos+program_len+255+2]=fgetc(progimage)&255|(fgetc(progimage)<<8),RAM[loadpos+program_len+255+2]>32767? (RAM[loadpos+program_len+255+2]=(65535-RAM[loadpos+program_len+255+2])*-1) : 0 ,program_len++;
+     fgetc(progimage);// the so called linker has to insert one character that fscanf does not overread while reading 
+
+variable lengths also
+	while(!feof(progimage))RAM[loadpos+program_len+255+2]=fgetc(progimage)&255|(fgetc(progimage)<<8),RAM[loadpos
+
++program_len+255+2]>32767? (RAM[loadpos+program_len+255+2]=(65535-RAM[loadpos+program_len+255+2])*-1) : 0 ,program_len++;
   	 RAM[loadpos+program_len+255+2-1]=38;
 	   fclose(progimage);
      tasktable[n].len=program_len;
@@ -2125,7 +2167,9 @@ void syscall(void)
    tasktable[n].regsreset.ip_stack_c=0;
   os_ready=0;
   syscall_answer.task=-1;
-  //printf("Habe geladen Task %d Adresse %d Programmlaenge %d Variablenlaenge %d",n,tasktable[n].address,tasktable[n].len,tasktable[n].varlen);
+  //printf("Habe geladen Task %d Adresse %d Programmlaenge %d Variablenlaenge %d",n,tasktable[n].address,tasktable
+
+[n].len,tasktable[n].varlen);
  }
   else
  if ( syscall_answer.msg==1&&os_ready==1)
@@ -2137,7 +2181,9 @@ void syscall(void)
   {
    if ( tasktable[n].address>tasktable[syscall_answer.task].address)
    {
-   	memmove(RAM+tasktable[n].address-tasktable[syscall_answer.task].len-tasktable[syscall_answer.task].varlen-255-2,RAM+tasktable[n].address,
+   	memmove(RAM+tasktable[n].address-tasktable[syscall_answer.task].len-tasktable[syscall_answer.task].varlen-255-
+
+2,RAM+tasktable[n].address,
 	   tasktable[syscall_answer.task].len+tasktable[syscall_answer.task].varlen+255+2);
 	   tasktable[n].address-=tasktable[syscall_answer.task].len+tasktable[syscall_answer.task].varlen+255+2;
       tasktable[n].regsreset.ip-=tasktable[syscall_answer.task].len+tasktable[syscall_answer.task].varlen+255+2;	
@@ -2185,7 +2231,9 @@ void vm_execute(void)
      static signed int readvaladr=-1;
     while (vmsteps>0)
     {
-      //printf("Bin an Adresse %d di ist %d offset Befehl %d %d %d\n",vmregs.ip,vmregs.di_off,RAM[vmregs.ip],tasktable[active_task].address,vmregs.if_flag);
+      //printf("Bin an Adresse %d di ist %d offset Befehl %d %d %d\n",vmregs.ip,vmregs.di_off,RAM[vmregs.ip],tasktable
+
+[active_task].address,vmregs.if_flag);
 	   //int n4;n4=0;
 	    //while (n4<100){printf("%d ",RAM[vmregs.ip+n4]),n4++; if ( vmregs.ip+n4==389)printf("dada");}
 	if ( RAM[tasktable[active_task].address+102]==1)
@@ -2486,11 +2534,16 @@ void vm_execute(void)
  
  if ( RAM[vmregs.ip]==33)
  {
- 	
- 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]] >=tasktable[active_task].address+tasktable[active_task].len+255+2+tasktable[active_task].varlen||
-	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]]<tasktable[active_task].address+tasktable[active_task].len+255+2||
-		 vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable[active_task].len+255+2+tasktable[active_task].varlen||
-	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+tasktable[active_task].len+255+2)
+ 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]] >=tasktable[active_task].address+tasktable
+
+[active_task].len+255+2+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+2]]<tasktable[active_task].address+tasktable[active_task].len
+
++255+2||
+		 vmregs.di_off+RAM[vmregs.ip+1] >=tasktable[active_task].address+tasktable[active_task].len
+
++255+2+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.ip+1]<tasktable[active_task].address+tasktable[active_task].len+255+2)
 	 {
 	  printf("Speicher-Schutzverletzung.");return;
     }
@@ -2500,8 +2553,12 @@ void vm_execute(void)
  else
  if ( RAM[vmregs.ip]==34)
  {
- 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable[active_task].len+255+2+tasktable[active_task].varlen||
-	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+255+2+tasktable[active_task].len)
+ 	if ( vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]] >=tasktable[active_task].address+tasktable
+
+[active_task].len+255+2+tasktable[active_task].varlen||
+	     vmregs.di_off+RAM[vmregs.di_off+RAM[vmregs.ip+1]]<tasktable[active_task].address+255+2+tasktable
+
+[active_task].len)
 	 {
 	  printf("Speicher-Schutzverletzung..");return;
     }
@@ -2536,7 +2593,7 @@ else
  {
   vmregs.ip_stack[vmregs.ip_stack_c]=vmregs.ip+2;
    vmregs.ip_stack_c++;
-    if ( vmregs.ip_stack_c==5 ){printf("Adressstack ist uebergelaufen"); return; }
+    if ( vmregs.ip_stack_c>=5 ){vmregs.ip_stack_c=4; printf("Adressstack ist uebergelaufen"); return; }
   vmregs.ip+=RAM[vmregs.ip+1]> 0 ? RAM[vmregs.ip+1]+1: RAM[vmregs.ip+1];
   
  }
@@ -2551,7 +2608,9 @@ else
 
  vmsteps--;
 }
- //bei Adressoperator weist man ohne eckige Klammern zu R-Wert, bei Inhaltsoperator kopiert man Speicherzelle in Register und indiziert es anschließend?!?
+ //bei Adressoperator weist man ohne eckige Klammern zu R-Wert, bei Inhaltsoperator kopiert man Speicherzelle in Register 
+
+und indiziert es anschließend?!?
  
 /* 
  if ( strcmp(input,"movaxvar" 0)==0)
@@ -2621,3 +2680,56 @@ int main(void)
 
 }
 #endif
+/* folgendes vorgehen: bei eintritt in jede funktion wird zu data index register ausgehend vom globalen variablenstart ein 
+symbolischer wert addiert, der der länge aller bisher definierten funktionen ihren variablen entsprechen soll, 
+anschließend wird je funktion ein globaler zähler erhöht, der zunächst mit -1 initialisiert würde, der wird mit dem 
+symbolischen wert, der der länge aller Variablen dieser funktion entspräche, multipliziert und weiter zu data index offset 
+dazuaddiert, bei return aus der funktion wird der zähler verringert, dann wird bei jedem Variablenzugriff vom Compiler die 
+Variable als global (extra segment index) oder als lokal zugehörig zu einer funktion verwaltet, vor dem zugriff auf jede 
+Variable wird zwischen extra segment index oder data index umgeschaltet es: ds: ?!?? der assemblerlinker verwaltet 
+anschließend alle variablen mit einer weiteren nummer für die zuordnung zu einer funktion, die funktionen kommen weiterhin 
+in ihrer definitionsreihenfolge, der compiler hätte dann eine untere stack ebene für die funktionsdefinition, kommt jetzt 
+das, was vorher nur ein label war, wird er eingestellt, alle variablenlängen aller in der reihenfolge drunterliegenden 
+funktionen zusammenzuzählen, ds: und es: würden nochmal eingestreut und machten auch da eine umschaltung, weiter noch die 
+länge einer einzelnen funktion, durch das ersetzt er die symbole für den offset, wobei vielleicht jeweils vier felder 
+hintereinander bereitgestellt werden für die variablen, also der wert der vorangegangenen variablen ebensolcher funktionen 
+sich vervierfachte, ferner würde für den rückgabewert vielleicht noch eine globale variable, die genauso heißt wie die 
+funktion, bloß mit zwei underscores vorne vielleicht im namen, wo der funktionsreturn eine zuweisung machen könnte, um 
+diesen wert als r wert entsprechung in einem ausdruck weiterzuverwenden, funktionsaufrufe mit parametern würden dann so 
+geparst, daß links var neben der klammer stünde und weiterhin mit höherer priorität als die klammer einfach sozusagen, 
+während der lexikalischen erkennung das zu "analysieren" wäre schwierig, parameterübergabe ist nur ein zuweisung beim 
+eintritt, in der reihenfolge r,r,r,...) nach reduktion der parameter könnte er die funktion dann reduzieren und den call 
+einfügen und hinten im assembler code nach ersetzung dieses durch den r wert mit der zuweisung vom return code zu diesem r 
+wert weitermachen, vielleicht würde auch da ein set globale und lokale variablen angelegt mit suffixen entsprechend der 
+funktionsbezeichnung und underscores, um die zuweisung beim eintritt oder initialisierung durchzuführen, nur leider kann 
+der compiler noch nicht rückwärts laufen, man müßte wieder steuercodes für das zählen der anzahl übergebener parameter 
+elemente oder er zählte es in einer liste halt mit, macht das mit polymorphismus nicht der linker in C++? ich gehe davon 
+aus, daß bei hier dem von der untersten label stack ebene aus die funktion definiert werden müßte und sie ab da definiert 
+eingetragen wäre und man dann bis zu deren äußerem next oder gar einer geschlossenen geschweiften klammer den imperativen 
+programmiertext eingeben könnte, dann müßte man für diese ebene das ganze parsen bis auf das ausschalten?!??
+
+trifft er auf int, unsigned, signed struct, union, const... legt er den neuen Parse-Modus auf den entsprechenden Stack?!??
+fortan ist er im "typedef/type cast/definitions- oder deklarations-modus?!??" mit typedef deklarierte Typen würden durch 
+eine simple Ersetzung extrahiert, type cast weist den neuen Datentyp einem R-Wert zu?!??implizite Typenkonvertierung 
+könnte einen type cast einfügen, muß aber nicht, Zweiteres gefällt mir besser?!?? Eine Datenstruktur nicht, eine 
+fortlaufende Zeichenkette, FunktionY:StructX:VariableZ Typ_Nummer_als_ASCII Länge_in_Byte_als_ASCII ; , kann man dann mit 
+sscanf wieder rauslesen?!?? es gäbe einen Deklarationspfad für den Geltungsbereich, wobei jede Variable, auch in einem 
+Struct, einzeln aufgeführt würde und keine Hierarchie aufginge?!?? Dann folgte der Typ, (signed) int, unsigned int ...auch 
+struct wäre nur ein einzelner Wert, es gibt in der Hinsicht nur ein struct oder union oder (auch enum?wobei enum noch was 
+mit der Typedef-Logik zu sein scheint?!??) der Parser braucht die Länge in Bytes eines in einem Struct definierten 
+Structs!??? wenn jetzt in einer Struct wieder eine Struct Definition folgt, legte er zweimal das Parsen von Struct_A und 
+Struct_B als Steuerzeichen und "Hierarchie" auf den Stack, dann würde er nacheinander alle Variablen im jeweiligen Struct 
+an die Deklarations-Zeichenkette appenden also dranhängen und bei der geschlossenen geschweiften Klammer beim Verlassen 
+einer Hierarchie das Struct definieren und die Länge summieren aller enthaltenen Variablen?!? Trifft er nun im 
+Programmiertext auf die Verwendung einer Variable, auch einer Zusammengesetzten wie Structs, wendet er entweder die 
+passende Assemblersequenz mit eventuell einer impliziten Typenkonvertierung an, oder sucht bei Array Index (bei dem er 
+noch weitere Deklarationseinträge für weitere Felder bräuchte), Direct Selection oder dem Inhaltsoperator die Deklaration 
+aus der Liste heraus für weitere Generierung von R-Werten, wobei bei Array-Index eine Suffix-Notation verwendet würde, die 
+sind dann wie ein Struct im Struct eingetragen, aber nach einer bestimmten Nomenklatur, mit für Variablen-Bezeichner 
+verbotenen Zeichen, zum Auffinden?!?? es hört sich echt komplizierter an, wie es mit ein paar Tricks doch einfach sein 
+könnt!?und wie gesagt, Eintritt in Geltungsbereiche, sowohl bei Funktionsbeginn als auch bei Ansprechen spezifischer wie 
+globaler Variablen, führte nur zum Einfügen von Assembler-Code zum verschieben des Data-Indexes vor der Variablen-
+Adressierung über denselben gemeinsam?!?
+C unterstützte ursprünglich wohl weder Geltungsbereiche in Kontrollstrukturen in Funktionen und hatte auch bei polymorphen 
+Parametern ein anderes Verhalten?!??wurde anscheinend mit dem neueren Standard geändert?!??Verwirrend das?!??
+*/
