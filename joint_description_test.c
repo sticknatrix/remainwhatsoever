@@ -61,6 +61,7 @@ struct
    int element,seq;
   }checks[20];
   int len_follow;
+  int len_follow_seq;
   struct
   {
    float x,y;
@@ -147,7 +148,7 @@ int initlinks(void)
 int lookup_joint( int element_bound, float *x_add, float *y_add, signed int move, particle particles[])
 {
  int n=0;
- while ((attachings[n].corresponding_element!=element_bound || attachings[n].move_n!=elements[n].current_move)&&n < num_attachings)n++;
+ while ((attachings[n].corresponding_element!=element_bound || attachings[n].move_n!=elements[attachings[n].corresponding_element].current_move)&&n < num_attachings)n++;
  if ( n== num_attachings)return 1 ;
  int addelem;
  int n2=0;
@@ -162,13 +163,15 @@ int lookup_joint( int element_bound, float *x_add, float *y_add, signed int move
   if (n2==num_attachings)n2=n;
  
  float rotation_add;
- rotation_add=elements[attachings[n2].element_attached_on].angle;
+ rotation_add=-elements[attachings[n2].element_attached_on].angle;
  if (elements[attachings[n2].element_attached_on].fixate==1) rotation_add=0.0;
  
  *x_add=0*cos(rotation_add+attachings[n2].angle)-attachings[n2].y*sin(rotation_add+attachings[n2].angle);
  *y_add=0*sin(rotation_add+attachings[n2].angle)+attachings[n2].y*cos(rotation_add+attachings[n2].angle);	
  *x_add+=particles[addelem].x;
  *y_add+=particles[addelem].y;
+ //printf("moechte um Winkel %f drehen bei %s dranverbundenes Element ist mit %f %s",attachings[n2].angle,attachings[n2].name,
+  //elements[attachings[n2].element_attached_on].angle,elements[attachings[n2].element_attached_on].name);getchar();
  //printf("%d soll an Stelle %f %f mit %f %f und Winkel %f\n",attachings[n2].corresponding_element,particles[addelem].x,particles[addelem].y,attachings[n2].x,attachings[n2].y,rotation_add+attachings[n2].angle);getchar();
  elements[attachings[n2].corresponding_element].current_move=attachings[n2].move_n;
   return 0;
@@ -202,7 +205,7 @@ signed int eval_sequence (particle particles[100])
 while (n<num_causeseqs)
 { 
   if ( causeseq[n].checkpos==causeseq[n].len_causing_seq)causeseq[n].has_checked=1,causeseq[n].checkpos=0;
-  if ( causeseq[n].evalpos==causeseq[n].len_follow)causeseq[n].has_checked=0,causeseq[n].evalpos=0;
+  if ( causeseq[n].evalpos==causeseq[n].len_follow_seq)causeseq[n].has_checked=0,causeseq[n].evalpos=0;
   
    n2=0;
    while ( n2<causeseq[n].len_follow)
@@ -325,6 +328,10 @@ if ( depthsteps>4)return 0;
 while ( move_iterations>0)
 {
  if ( depthsteps!=-1)setjoints(0,depthsteps);
+
+n3=0;
+while ( n3 < num_elements_with_attachings)
+{
 n=0;
 while ( n < num_particles)
 {
@@ -337,7 +344,9 @@ while ( n < num_particles)
      while (n4 < num_elements)
      {
       if(elements[n4].connected_to==n)
-	  elements[n4].angle+=( particles[elements[n4].particle_assigned].xv-particles[n].xv,particles[elements[n4].particle_assigned].yv-particles[n].yv);
+	   elements[n4].angle+=atan2( particles[elements[n4].particle_assigned].xv-particles[n].xv,particles[elements[n4].particle_assigned].yv-particles[n].yv)/
+	    num_elements_with_attachings; //irgendein Drehimpuls halt?!?haengt auch von der Masse ab?!? der Drehimpuls wuerde nur durch Gelenke weitergegeben,
+	   //sonst waere ein Punkt ja rund?!?
 	  n4++;
      }
 	}
@@ -353,7 +362,7 @@ while ( n < num_particles)
  {
  	 x_buf=(x_buf-particles[n].x)/1.0;
  	y_buf=(y_buf-particles[n].y)/1.0;
-	//nach au�en jedes Kollisionsverhalten vorspiegelbar, aber Gesamtimpuls bleibt erhalten?!?
+	//nach auÃŸen jedes Kollisionsverhalten vorspiegelbar, aber Gesamtimpuls bleibt erhalten?!?
    //"modelliert" man es jetzt halt so, als gaebe es nur Stoesse und keine Zuege und Selbstauskuehlung?!??	 
     particles[n].x+=x_buf,
     particles[n].y+=y_buf;
@@ -362,7 +371,8 @@ while ( n < num_particles)
  //printf("%d %f %f\n",movements[n],particles[n].xv,particles[n].yv);getchar();
  n++;
 }
-
+n3++;
+}
  n=0;
  while ( n < 100)particles_bak[n].x=particles[n].x,particles_bak[n].y=particles[n].y,particles_bak[n].xv=particles[n].xv,particles_bak[n].yv=particles[n].yv,n++;
  n3=0;
@@ -480,6 +490,7 @@ bestret=backtrack(particles,depthsteps+1);
 setbacksequence();
 if ( bestret+eval>retcode)
 {
+//if ( bestret+eval > 0 &&depthsteps==0) printf("%d",eval),getchar();
  retcode=bestret+eval;
   setjoints(2,depthsteps);
 }
@@ -533,7 +544,7 @@ setjoints(1,depthsteps);
 	printf("\n");
    	y++;
    }
-*/
+  */
  }
 
 return retcode;
@@ -863,7 +874,7 @@ if ( stackcount>0)
    {
    	if ( modestack[stackcount-1].state==3)causeseq[num_causeseqs].len_causing_seq=atoi(token[left_limit+1].text);
    	else
-	   if ( modestack[stackcount-1].state==4)causeseq[num_causeseqs].len_follow=atoi(token[left_limit+1].text);
+	   if ( modestack[stackcount-1].state==4)causeseq[num_causeseqs].len_follow_seq=atoi(token[left_limit+1].text);
    	else return 1;
 	remove_tokens(left_limit,1);
 	  token[left_limit].type='R';
@@ -1049,6 +1060,8 @@ if ( reduction_type=='0')
    {
    	modestack[stackcount].state=2;
 	causeseq[num_causeseqs].relative_mode=0;
+	causeseq[num_causeseqs].len_causes=0,
+	causeseq[num_causeseqs].len_follow=0;
 	token[left_limit].type='R';
    	stackcount++;
    }
@@ -1149,6 +1162,7 @@ setxy ball 17 14 ;
 sequence ;
 cause ;
 followup ;
+len 1 ;
 is ball 37 13 0 100 ;
 next ;
 
