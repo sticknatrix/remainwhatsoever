@@ -177,25 +177,34 @@ int lookup_joint( int element_bound, float *x_add, float *y_add, signed int move
   return 0;
 }
 
+int evalpos_bak[5], has_checked_bak[5],checkpos_bak[5];
+
+void backupsequencepos(void)
+{
+	int n=0;
+	n=0;
+	while ( n < num_causeseqs)
+	{
+	 evalpos_bak[n]=causeseq[n].evalpos;
+	 checkpos_bak[n]=causeseq[n].checkpos;
+	 has_checked_bak[n]=causeseq[n].has_checked;
+     n++;
+    }    
+}
+
 void setbacksequence(void)
 {
- int n=0;
- while ( n < 5)
- {
-  if ( causeseq[n].has_checked==1)
-  {
-   if ( causeseq[n].evalpos>0)causeseq[n].evalpos--;
-   else
-    {
-     causeseq[n].has_checked=0;
-     if ( causeseq[n].checkpos>0) causeseq[n].checkpos--;
-    }
-   }
-  else if ( causeseq[n].checkpos>0)causeseq[n].checkpos--;
-  n++;
- }
-	
+	int n=0;
+	n=0;
+	while ( n < num_causeseqs)
+	{
+	 causeseq[n].evalpos=evalpos_bak[n];
+	 causeseq[n].checkpos=checkpos_bak[n];
+	 causeseq[n].has_checked=has_checked_bak[n];
+    n++;
+   } 
 }
+
 
 signed int eval_sequence (particle particles[100])
 {
@@ -204,8 +213,8 @@ signed int eval_sequence (particle particles[100])
   int n=0,n2=0,n3=0;
 while (n<num_causeseqs)
 { 
-  if ( causeseq[n].checkpos==causeseq[n].len_causing_seq)causeseq[n].has_checked=1,causeseq[n].checkpos=0;
   if ( causeseq[n].evalpos==causeseq[n].len_follow_seq)causeseq[n].has_checked=0,causeseq[n].evalpos=0;
+  if ( causeseq[n].checkpos==causeseq[n].len_causing_seq)causeseq[n].has_checked=1,causeseq[n].checkpos=0;
   
    n2=0;
    while ( n2<causeseq[n].len_follow)
@@ -215,8 +224,6 @@ while (n<num_causeseqs)
     	n3=0;
   if ( causeseq[n].valueups[n2].seq==causeseq[n].evalpos)
   {
- 
-  	
   	if ( causeseq[n].relative_mode==0)
   	{
    if ( fabs(particles[causeseq[n].valueups[n2].element].x-causeseq[n].valueups[n2].x)<3&&
@@ -362,7 +369,7 @@ while ( n < num_particles)
  {
  	 x_buf=(x_buf-particles[n].x)/1.0;
  	y_buf=(y_buf-particles[n].y)/1.0;
-	//nach auÃŸen jedes Kollisionsverhalten vorspiegelbar, aber Gesamtimpuls bleibt erhalten?!?
+	//nach außen jedes Kollisionsverhalten vorspiegelbar, aber Gesamtimpuls bleibt erhalten?!?
    //"modelliert" man es jetzt halt so, als gaebe es nur Stoesse und keine Zuege und Selbstauskuehlung?!??	 
     particles[n].x+=x_buf,
     particles[n].y+=y_buf;
@@ -483,6 +490,7 @@ if ( depthsteps==-1)
 
 }
 if ( depthsteps==-1) return 0;
+backupsequencepos();
 eval=eval_sequence(particles);
 #define EVAL_LIMIT -100
 if ( eval>EVAL_LIMIT)
@@ -908,6 +916,7 @@ if ( stackcount>0)
     	if ( strcmp(elements[count].name,token[left_limit+1].text)==0 )break;
    		count++;
 	   }
+	   if ( count==num_elements)return 1;
 	   
 	   if ( modestack[stackcount-1].state==3)
 	   {
@@ -917,8 +926,9 @@ if ( stackcount>0)
 	   	causeseq[num_causeseqs].checks[causeseq[num_causeseqs].len_causes].seq=atoi(token[left_limit+4].text);
 	   	causeseq[num_causeseqs].len_causes++;
 	   }
+	   else return 1;
 	
-	   remove_tokens(left_limit,5);
+	   remove_tokens(left_limit,4);
 	   token[left_limit].type='R';
     }
 	else
@@ -941,6 +951,7 @@ if ( stackcount>0)
 	   	causeseq[num_causeseqs].valueups[causeseq[num_causeseqs].len_follow].eval=atoi(token[left_limit+5].text);
 	   	causeseq[num_causeseqs].len_follow++;	    	
        }
+       else return 1;
 	   remove_tokens(left_limit,5);
 	   token[left_limit].type='R';
    }   
@@ -1104,7 +1115,7 @@ fclose(definitions);
  while (1)
  {
   backtrack(particles, 0);
-   setbacksequence();printf(">>binda<<");
+   /*setbacksequence();*/printf(">>binda<<");
    setjoints(3,0);backtrack(particles,-1);eval_sequence(particles);
    
    y=0;
