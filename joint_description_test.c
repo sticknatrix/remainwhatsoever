@@ -13,6 +13,8 @@ struct
 
 int num_particles=0;
 
+particle particles_main[100];
+
 typedef
 struct
 {
@@ -145,7 +147,7 @@ int initlinks(void)
   return 0;
 }
 
-int lookup_joint( int element_bound, float *x_add, float *y_add, signed int move, particle particles[])
+int lookup_joint( int element_bound, float *x_add, float *y_add, signed int move, particle particles[100])
 {
  int n=0;
  while ((attachings[n].corresponding_element!=element_bound || attachings[n].move_n!=elements[attachings[n].corresponding_element].current_move)&&n < num_attachings)n++;
@@ -369,7 +371,7 @@ while ( n < num_particles)
  {
  	 x_buf=(x_buf-particles[n].x)/1.0;
  	y_buf=(y_buf-particles[n].y)/1.0;
-	//nach außen jedes Kollisionsverhalten vorspiegelbar, aber Gesamtimpuls bleibt erhalten?!?
+	//nach aussen jedes Kollisionsverhalten vorspiegelbar, aber Gesamtimpuls bleibt erhalten?!?
    //"modelliert" man es jetzt halt so, als gaebe es nur Stoesse und keine Zuege und Selbstauskuehlung?!??	 
     particles[n].x+=x_buf,
     particles[n].y+=y_buf;
@@ -481,10 +483,10 @@ if ( depthsteps==-1)
  n=0;
  while (n<num_particles)
  {
-  particles_call[n].x=particles[n].x;
-  particles_call[n].y=particles[n].y;
-  particles_call[n].xv=particles[n].xv,
-  particles_call[n].yv=particles[n].yv;	
+  particles_main[n].x=particles[n].x;
+  particles_main[n].y=particles[n].y;
+  particles_main[n].xv=particles[n].xv,
+  particles_main[n].yv=particles[n].yv;	
    n++;
  }	
 
@@ -517,10 +519,10 @@ setjoints(1,depthsteps);
    }
   }
  move_iterations--;
- /*
+ 
    int screen[120][50];
 	int x,y;  
-  
+  /*
   y=0;
    while ( y < 50)
    {
@@ -589,8 +591,6 @@ int main(void)
 {
  FILE *definitions;
  definitions=fopen("definitions.txt","rb");
-
-particle particles[100];
  
  struct
  {
@@ -1094,14 +1094,15 @@ fclose(definitions);
    n=0;
    while (n<num_elements)
    {
-   	particles[n].element_bind=n;
+   	particles_main[n].element_bind=n;
    	elements[n].particle_assigned=n;
    	elements[n].current_move=0;//eventuell Initialisierung erlauben?!?
 	elements[n].angle=0.0;
-	particles[n].x=elements[n].x,
-   	particles[n].y=elements[n].y;
-   	particles[n].fixate=elements[n].fixate;
-   	particles[n].xv=0,particles[n].yv=0;
+	if ( n < 5)causeseq[n].evalpos=0,causeseq[n].checkpos,causeseq[n].has_checked=0;
+	particles_main[n].x=elements[n].x,
+   	particles_main[n].y=elements[n].y;
+   	particles_main[n].fixate=elements[n].fixate;
+   	particles_main[n].xv=0,particles_main[n].yv=0;
    	n++;
    }
    num_particles=num_elements;
@@ -1114,9 +1115,9 @@ fclose(definitions);
   int moveseq[21];
  while (1)
  {
-  backtrack(particles, 0);
+ backtrack(particles_main, 0);
    /*setbacksequence();*/printf(">>binda<<");
-   setjoints(3,0);backtrack(particles,-1);eval_sequence(particles);
+   setjoints(3,0);backtrack(particles_main,-1);eval_sequence(particles_main);
    
    y=0;
    while ( y < 50)
@@ -1133,7 +1134,7 @@ fclose(definitions);
    n=0;
    while (n<num_elements)
    {
-   	if ( particles[n].x>=0&&particles[n].x<120&&particles[n].y>=0&&particles[n].y<50)screen[(int)particles[n].x][(int)particles[n].y]=n+0x30<0x3a? n+0x30: n-10+0x41;
+   	if ( particles_main[n].x>=0&&particles_main[n].x<120&&particles_main[n].y>=0&&particles_main[n].y<50)screen[(int)particles_main[n].x][(int)particles_main[n].y]=n+0x30<0x3a? n+0x30: n-10+0x41;
    	n++;
    }
    
@@ -1161,38 +1162,39 @@ limb finger ;
 fixate hand ;
 setxy finger 5 10 ;
 attach finger hand 0 ;
-coordinates 3 14 ;
+coordinates 3 6 ;
 rotation -10 ;
 next ;
 
-setxy hand 0 10 ;
+setxy hand 0 20 ;
 
 limb ball ;
-setxy ball 17 14 ;
-
-sequence ;
-cause ;
-followup ;
-len 1 ;
-is ball 37 13 0 100 ;
-next ;
+setxy ball 12 14 ;
 
 attach finger hand 1 ;
-coordinates 3 20 ;
-rotation -15 ;
+coordinates 3 6 ;
+rotation -20 ;
 next ;
 
 limb fingertip ;
 setxy fingertip 25 40 ;
 
 attach fingertip finger 0 ;
-coordinates 4 4 ;
-rotation -15 ;
+coordinates 4 6 ;
+rotation 31 ;
 next ;
 
 attach fingertip finger 1 ;
 coordinates 4 4 ;
-rotation -25 ;
+rotation 41 ;
+next ;
+
+sequence ;
+cause ;
+followup ;
+len 2 ;
+is ball 12 11 0 100 ;
+is fingertip 10 14 1 300 ;
 next ;
 
 next ;
