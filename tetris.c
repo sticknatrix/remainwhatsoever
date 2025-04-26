@@ -449,6 +449,16 @@ DATAREG.bit[7]=operand1.bit_2[7];
 //binary_addition(&count);
 
 binary_addition(&DATAREG);
+DATAREG.bit[0]=1,DATAREG.bit[1]=1,DATAREG.bit[2]=1,
+DATAREG.bit[3]=1,DATAREG.bit[4]=1,DATAREG.bit[5]=1,
+DATAREG.bit[6]=1,DATAREG.bit[7]=1;
+ADDRREG.bit[0]=1,ADDRREG.bit[1]=1,ADDRREG.bit[2]=1,
+ADDRREG.bit[3]=1,ADDRREG.bit[4]=1,ADDRREG.bit[5]=1,
+ADDRREG.bit[6]=1,ADDRREG.bit[7]=1;
+
+binary_addition(&DATAREG);
+binary_addition(&ADDRREG);
+
 
 while(! (count.bit_2[0]==0&&count.bit_2[1]==0&&count.bit_2[2]==0&&count.bit_2[3]==0&&count.bit_2[4]==0
 
