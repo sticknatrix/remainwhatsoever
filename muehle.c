@@ -22,6 +22,30 @@ int countend_glob=15625;
 
 unsigned char outstr[4];
 
+int onlymill(int player)
+{
+	int n=0;
+  while ( n<24)
+  {
+  	if ( brett[n]==player)if(ismill(player,n)==0) return 0;
+  	n++;
+  }
+  return 1;
+}
+
+
+int vonlymill(int player)
+{
+	int n=0;
+  while ( n<24)
+  {
+  	if ( vbrett[n]==player)if(vismill(player,n)==0) return 0;
+  	n++;
+  }
+  return 1;
+}
+
+
 int ismill(int player, int n)
 {
 	
@@ -96,9 +120,9 @@ int nomovepossible(int player)
  int n=0;
 	if ( (player==1&&steineA>0)||
 	     (player==2&&steineB>0)) return 0;
-	 if ( (player==1&&takenA==3)||
-	      (player==2)&&takenB==3)return 0;
-	while ( n<22)
+	 if ( (player==1&&takenA==6)||
+	      (player==2)&&takenB==6)return 0;
+	while ( n<24)
  {
  	if ( brett[n]==player)
  	{
@@ -119,9 +143,9 @@ int vnomovepossible(int player)
  int n=0;
 	if ( (player==1&&vsteineA>0)||
 	     (player==2&&vsteineB>0)) return 0;
-	 if ( (player==1&&vtakenA==3)||
-	      (player==2)&&vtakenB==3)return 0;
-	while ( n<22)
+	 if ( (player==1&&vtakenA==6)||
+	      (player==2)&&vtakenB==6)return 0;
+	while ( n<24)
  {
  	if ( vbrett[n]==player)
  	{
@@ -186,9 +210,10 @@ input[0]='a',input[1]='a',input[2]='a';
        if ( retcode_add!=1)
        {
 	 if ( retcode_add==3)retcode_add=-10;
-	 else if ( retcode_add==4||retcode_add==2)retcode_add=-100;
+	 else if ( retcode_add==4)retcode_add=-100;
+	 else if ( retcode_add==2)retcode_add=100;
 	 else if ( retcode_add==0) retcode_add=0;
-	 if ( retcode_add!=-100)retcode_add+=minimax(2,callstr,rec_depth+1);
+	 if ( retcode_add!=-100&&retcode_add!=100)retcode_add+=minimax(2,callstr,rec_depth+1);
 	  if ( rec_depth==0)move_error=0;	 
       if ( retcode_add<retcode){ retcode=retcode_add;
 	   if ( rec_depth==0)outstr[0]=input[0],outstr[1]=input[1],outstr[2]=input[2];
@@ -223,10 +248,11 @@ input[0]='a',input[1]='a',input[2]='a';
 	   if ( retcode_add!=1)
        {
 	 if ( retcode_add==3)retcode_add=10;
-	 else if ( retcode_add==4||retcode_add==2)retcode_add=100;
+	 else if ( retcode_add==4)retcode_add=100;
+	  else if ( retcode_add==2)retcode_add=-100;
 	  else if ( retcode_add==0) retcode_add=0;
 	   if ( rec_depth==0)move_error=0;
-	if(retcode_add!=100)retcode_add+=minimax(1,callstr,rec_depth+1);
+	if(retcode_add!=100&&retcode_add!=-100)retcode_add+=minimax(1,callstr,rec_depth+1);
    if ( retcode_add>retcode){retcode=retcode_add;
    if ( rec_depth==0)outstr[0]=input[0],outstr[1]=input[1],outstr[2]=input[2];
      }
@@ -295,7 +321,7 @@ int n=0;
 	 	
 		moveok=0;
 		unsigned char direc;
-     //printf("h,k,u,j für Richtung der Bewegung...");
+     //printf("h,k,u,j fÃ¼r Richtung der Bewegung...");
 	  direc=input[inputpos];inputpos++;
           if ( direc!='h'&&direc!='k'&&direc!='u'&&direc!='j')return 1;
 	  
@@ -343,7 +369,7 @@ checkmill=vismill(1,n);
 	 // printf("Welchen Stein wegnehmen: ");
 	   pos=input[inputpos];inputpos++;
        	         if ( pos<'a'||pos>'x') return 1;
-	            if ( vismill(2,pos-0x61))return 1;
+	            if ( vismill(2,pos-0x61)&&vonlymill(2)!=1)return 1;
            if ( vbrett[pos-0x61]!=2 ) return 1;
 	  	
 	  vbrett[pos-0x61]=0;
@@ -400,7 +426,7 @@ else  if (player==2)
 		
 		moveok=0;
 		unsigned char direc;
-     //printf("h,k,u,j für Richtung der Bewegung...");
+     //printf("h,k,u,j fÃ¼r Richtung der Bewegung...");
 	  direc=input[inputpos];inputpos++;
         if( direc!='h'&&direc!='k'&&direc!='u'&&direc!='j') return 1;
 	  
@@ -426,7 +452,7 @@ else  if (player==2)
 	   pos=input[inputpos];inputpos++;
             if ( pos<'a'||pos> 'x') return 1;
 	  
-	   if (vbrett[pos-0x61]!=1) return 1;
+	   if (vbrett[pos-0x61]!=2) return 1;
 	  
 	  vbrett[pos-0x61]=0;
 	  
@@ -448,7 +474,7 @@ checkmill=vismill(2,n);
   	 // printf("Welchen Stein wegnehmen: ");
 	    pos=input[inputpos];inputpos++;
             if ( pos<'a'||pos>'x') return 1;
-	   if(vismill(1,pos-0x61))return 1;
+	   if(vismill(1,pos-0x61)&&vonlymill(1)!=1)return 1;
 	  if (vbrett[pos-0x61]!=1) return 1;
 	  
 	  vbrett[pos-0x61]=0;
@@ -645,7 +671,7 @@ while(1)
 		
 		moveok=0;
 		unsigned char direc;
-     printf("h,k,u,j für Richtung der Bewegung...");
+     printf("h,k,u,j fÃ¼r Richtung der Bewegung...");
 	  do{direc=getch();}while ( direc!='h'&&direc!='k'&&direc!='u'&&direc!='j');
 	  
 	  if ( direc=='h')if ( connections[pos][LEFT]!=-1)if (brett[connections[pos][LEFT]]==0)
@@ -700,7 +726,7 @@ checkmill=ismill(1,n);
 	  printf("Welchen Stein wegnehmen: ");
 	   do{pos=getch();pos=tolower(pos);}while ( pos<'a'||pos>'x');
 	  
-	  }while (brett[pos-0x61]!=2||ismill(2,pos-0x61)==1);
+	  }while (brett[pos-0x61]!=2||(ismill(2,pos-0x61)==1&&onlymill(2)!=1));
 	  
 	  brett[pos-0x61]=0;
 	  takenB++;
@@ -768,7 +794,7 @@ else  if (player==1)
 		
 		moveok=0;
 		unsigned char direc;
-     printf("h,k,u,j für Richtung der Bewegung...");
+     printf("h,k,u,j fÃ¼r Richtung der Bewegung...");
 	  do{direc=getch();}while ( direc!='h'&&direc!='k'&&direc!='u'&&direc!='j');
 	  
 	  if ( direc=='h')if ( connections[pos][LEFT]!=-1)if (brett[connections[pos][LEFT]]==0)
@@ -794,7 +820,7 @@ else  if (player==1)
 	  printf("Quellposition eingeben: ");
 	   do{pos=getch();pos=tolower(pos);}while ( pos<'a'||pos> 'x');
 	  
-	  }while (brett[pos-0x61]!=1);
+	  }while (brett[pos-0x61]!=2);
 	  
 	  brett[pos-0x61]=0;
 	  
@@ -822,7 +848,7 @@ checkmill=ismill(2,n);
 	  printf("Welchen Stein wegnehmen: ");
 	   do{pos=getch();pos=tolower(pos);}while ( pos<'a'||pos>'x');
 	  
-	  }while (brett[pos-0x61]!=1||ismill(1,pos-0x61)==1);
+	  }while (brett[pos-0x61]!=1||(ismill(1,pos-0x61)==1&&onlymill(1)!=1));
 	  
 	  brett[pos-0x61]=0;
 	  takenA++;
